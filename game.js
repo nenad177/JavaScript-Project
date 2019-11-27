@@ -12,8 +12,15 @@ for(var i=0; i<15; i++) {
 var blank_x = 3
 var blank_y = 3
 
+var startTime
+var running
+var pauseTime = null
+
 startb.addEventListener('click', new_game)
 pauseb.addEventListener('click', pause)
+
+document.getElementById("potezi").innerHTML = "Moves: " + moves
+document.getElementById("vreme").innerHTML = "Time: 00:00:00"
 
 function new_game() {
 	for (var i = array.length - 1; i > 0; i--) {
@@ -22,7 +29,8 @@ function new_game() {
         array[i] = array[j];
         array[j] = temp;
     }
-
+    blank_x = 3
+    blank_y = 3
     cells = [];
 	for(var i=0; i<4; i++) {
 	    cells[i] = [];
@@ -31,50 +39,80 @@ function new_game() {
 	        cells[i][j] = document.getElementById(name);
 	        if (typeof array[i*4+j] == 'undefined') {
 	        	cells[i][j].innerHTML = ''
+	        	cells[i][j].style.backgroundImage = "url('wood.jpg')"
 	        }
 	        else {
 	        	cells[i][j].innerHTML = array[i*4+j]
+	        	cells[i][j].style.background = "rgb(220, 220, 220)"
 	        }
+	        cells[i][j].addEventListener("click", swap.bind(this, i, j))
 	    }
 	}
 	time = 0
 	moves = 0
-	/*document.getElementById("c1").addEventListener('click', swap(0, 0))
-	document.getElementById("c2").addEventListener('click', swap(0, 1))
-	document.getElementById("c3").addEventListener('click', swap(0, 2))
-	document.getElementById("c4").addEventListener('click', swap(0, 3))
-	document.getElementById("c5").addEventListener('click', swap(1, 0))
-	document.getElementById("c6").addEventListener('click', swap(1, 1))
-	document.getElementById("c7").addEventListener('click', swap(1, 2))
-	document.getElementById("c8").addEventListener('click', swap(1, 3))
-	document.getElementById("c9").addEventListener('click', swap(2, 0))
-	document.getElementById("c10").addEventListener('click', swap(2, 1))
-	document.getElementById("c11").addEventListener('click', swap(2, 2))
-	document.getElementById("c12").addEventListener('click', swap(2, 3))
-	document.getElementById("c13").addEventListener('click', swap(3, 0))
-	document.getElementById("c14").addEventListener('click', swap(3, 1))
-	document.getElementById("c15").addEventListener('click', swap(3, 2))
-	document.getElementById("c16").addEventListener('click', swap(3, 3))*/
+	paused = false
+	pauseTime = null
+	startTimer(pauseTime)
+	document.getElementById("potezi").innerHTML = "Moves: " + moves
+	document.getElementById("vreme").innerHTML = "Time: 00:00:00"
 }
 
 function pause() {
 	if (!paused) {
 		document.getElementById("tbl").style.visibility = "hidden"
 		paused = true
+		pauseTimer()
 	}
-	else {
+	else if (paused) {
 		document.getElementById("tbl").style.visibility = "visible"
 		paused = false
+		startTimer(pauseTime)
 	}
 }
 
 function swap(x, y) {
-	if ((blank_x-x)*(blank_y-y) == 0 && ((blank_x-x) == 1 || (blank_y-y) == 1)) {
-		cells[blank_x, blank_y].innerHTML = cells[x, y].innerHTML
-		cells[x, y].innerHTML = ''
+	if (!check_if_solved() && (blank_x-x)*(blank_y-y) == 0 && (Math.abs(blank_x-x) == 1 || Math.abs(blank_y-y) == 1)) {
+		cells[blank_x][blank_y].innerHTML = cells[x][y].innerHTML
+		cells[x][y].innerHTML = ''
+		cells[blank_x][blank_y].style.background = cells[x][y].style.background
+		cells[x][y].style.backgroundImage = "url('wood.jpg')"
 		blank_x = x
 		blank_y = y
 		moves++
 		document.getElementById("potezi").innerHTML = "Moves: " + moves
+		//check_if_solved()
 	}
+}
+
+function check_if_solved()
+{
+	for(var i=0; i<4; i++) {
+	    for(var j=0; j<4; j++) {
+	    	if (cells[i][j].innerHTML != i*4+j+1) {
+	    		return false
+	    	}
+	    }
+	}
+	return true
+}
+
+function startTimer(t)
+{
+	startTime = Date.now()
+	if (t != null) {
+		startTime -= t
+	}
+	running = setInterval(refreshTimer.bind(this), 1000)
+}
+
+function refreshTimer()
+{
+	document.getElementById("vreme").innerHTML = 'Time: ' + (new Date(Date.now() - startTime)).toISOString().substr(11, 8)
+}
+
+function pauseTimer() {
+	clearInterval(running)
+	pauseTime = Date.now() - new Date(startTime)
+	console.log(pauseTime)
+	document.getElementById("vreme").innerHTML = 'Time: ' + (new Date(pauseTime)).toISOString().substr(11, 8)
 }

@@ -7,6 +7,8 @@ table, tr, td {
 table {
 	background-color: black;
 	border-spacing: 1px;
+	border: 25px solid black;
+	border-image: url(wood.jpg) 30 round;
 	text-align: center;
 	font-size: 35px;
 	margin-left: auto;
