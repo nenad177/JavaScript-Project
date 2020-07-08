@@ -1,10 +1,9 @@
 class Game {
 
 	constructor() {
-		this.numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
+		this.numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 11, 13, 14, 12];
 		this.cells = [];
 		this.moves = 0;
-		this.time = 0;
 		this.paused = false;
 		this.blank_x = 3;
 		this.blank_y = 3;
@@ -31,7 +30,7 @@ class Game {
 	new_game() {
 		
 		this.reset();
-		this.shuffle(this.numbers);
+		//this.shuffle(this.numbers);
 
 		for (var i = 0; i <= 15; i++) {
 			let c = new Cell(this.numbers[i], Math.floor(i/4), i%4);
@@ -63,9 +62,9 @@ class Game {
 
 		this.blank_x = 3;
     	this.blank_y = 3;
-    	this.time = 0;
 		this.moves = 0;
 		this.paused = false;
+		this.pauseTime = 0;
 		this.startTimer(this.pauseTime);
 		this.cells = [];
 		document.getElementById("moves").innerHTML = "Moves: " + this.moves;
@@ -89,7 +88,7 @@ class Game {
 	}
 
 	swap(x, y) {
-		if (!this.check_if_solved() && (this.blank_x-x)*(this.blank_y-y) == 0 
+		if ((this.blank_x-x)*(this.blank_y-y) == 0 
 		&& (Math.abs(this.blank_x-x) == 1 || Math.abs(this.blank_y-y) == 1)) {
 			let d = this.cells[4*x+y].dom.innerHTML;
 			this.cells[4*x+y].dom.innerHTML = this.cells[4*this.blank_x + this.blank_y].dom.innerHTML;
@@ -100,17 +99,43 @@ class Game {
 			this.blank_y = y;
 			this.moves++;
 			document.getElementById("moves").innerHTML = "Moves: " + this.moves;
-			this.check_if_solved();
 		}
+		this.check_if_solved();
 	}
 
 	check_if_solved() {
 		for (var i = 0; i <=14; i++) {
 			if (this.cells[i].dom.innerHTML != i+1) {
-				return false;
+				return;
 			}
 		}
-		return true;
+
+		this.stopTimer();
+		let time = (document.getElementById("time").innerHTML).substr(6);
+		let secs = parseInt(time.substr(0, 2))*3600 + parseInt(time.substr(3, 2))*60 + parseInt(time.substr(6, 2));
+		let score = this.moves + Math.floor(secs/2);
+
+		var user = window.prompt("Congratulations! Your score is " + score + ".\n"
+								+ "Enter your name");
+  		if (user != null) {
+	        let request = new XMLHttpRequest();
+	        request.open('POST', 'http://localhost:3000/users');
+	        request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+	        request.onreadystatechange = () => {
+				let OK = 200;
+	            if (request.readyState === XMLHttpRequest.DONE){
+	                if (request.status === OK){
+	                    console.log(request.responseText);
+	                }
+	                else {
+	                    console.log('Ajax Error: ' + request.status);
+	                }
+	            }
+	        }
+	        request.send(`name=${user}&score=${score}`);
+ 		}
+ 		this.reset();
+ 		this.stopTimer();
 	}
 	
 	startTimer(t) {
