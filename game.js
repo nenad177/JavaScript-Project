@@ -119,10 +119,10 @@ class Game {
 								+ "Enter your name");
   		if (user != null) {
 	        let request = new XMLHttpRequest();
-	        request.open('POST', 'http://localhost:3000/users');
+	        request.open('POST', 'http://localhost:3000/usersRoutes');
 	        request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
 	        request.onreadystatechange = () => {
-				let OK = 200;
+				let OK = 201;
 	            if (request.readyState === XMLHttpRequest.DONE){
 	                if (request.status === OK){
 	                    console.log(request.responseText);

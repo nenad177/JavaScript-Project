@@ -1,6 +1,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const { urlencoded, json } = require('body-parser');
+const cors = require('cors')
 
 const app = express();
 const port = 3000;
@@ -14,7 +15,7 @@ mongoose.connection.once('open', function () {
   console.log('Uspesno povezivanje sa bazom!');
 });
 
-app.use(json());
+app.use(cors());
 app.use(urlencoded({ extended: false }));
 
 const usersRoutes = require('./routes/usersRoutes');

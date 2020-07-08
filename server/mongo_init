@@ -1,0 +1,1 @@
+mongoimport --db users --collection users --file users.json
