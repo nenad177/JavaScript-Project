@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 const User = require('../models/dbModel');
 
 module.exports.getUsers = async (req, res) => {
-    const users = await User.find({}).exec();
+    const users = await User.find({}).sort({score:1}).exec();
     res.status(200).json(users);
 };
 
