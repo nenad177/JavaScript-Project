@@ -10,9 +10,9 @@ class Game {
 	
 		this.startTime;
 		this.running;
-		this.pauseTime = null;
-		this.picture = false;
+		this.pauseTime = 0;
 
+		document.getElementById("btn2").disabled = true;
 		this.new_game = this.new_game.bind(this);
 
 	}
@@ -30,7 +30,8 @@ class Game {
 	new_game() {
 		
 		this.reset();
-		//this.shuffle(this.numbers);
+		document.getElementById("btn2").disabled = false;
+		this.shuffle(this.numbers);
 
 		for (var i = 0; i <= 15; i++) {
 			let c = new Cell(this.numbers[i], Math.floor(i/4), i%4);
@@ -60,30 +61,34 @@ class Game {
 			container.removeChild(container.firstChild);
 		}
 
+		clearInterval(this.running);
 		this.blank_x = 3;
     	this.blank_y = 3;
 		this.moves = 0;
 		this.paused = false;
 		this.pauseTime = 0;
-		this.startTimer(this.pauseTime);
+		timer.startTimer(0);
 		this.cells = [];
 		document.getElementById("moves").innerHTML = "Moves: " + this.moves;
 		document.getElementById("time").innerHTML = "Time: 00:00:00";
 
 		document.getElementById("pause").style.zIndex = -1;
-		this.paused = false;
+		
 	}
 
 	pause() {
 		if (!this.paused) {
 			document.getElementById("pause").style.zIndex = 1;
 			this.paused = true;
-			this.stopTimer();
+			document.getElementById("btn1").disabled = true;
+			this.pauseTime = timer.stopTimer();
 		}
 		else if (this.paused) {
 			document.getElementById("pause").style.zIndex = -1;
 			this.paused = false;
-			this.startTimer(this.pauseTime);
+			document.getElementById("btn1").disabled = false;
+			//console.log(this.pauseTime);
+			timer.startTimer(this.pauseTime);
 		}
 	}
 
@@ -110,7 +115,7 @@ class Game {
 			}
 		}
 
-		this.stopTimer();
+		timer.stopTimer();
 		let time = (document.getElementById("time").innerHTML).substr(6);
 		let secs = parseInt(time.substr(0, 2))*3600 + parseInt(time.substr(3, 2))*60 + parseInt(time.substr(6, 2));
 		let score = this.moves + Math.floor(secs/2);
@@ -135,26 +140,6 @@ class Game {
 	        request.send(`name=${user}&score=${score}`);
  		}
  		this.reset();
- 		this.stopTimer();
+ 		timer.stopTimer();
 	}
-	
-	startTimer(t) {
-		this.startTime = Date.now();
-		if (t != null) {
-			this.startTime -= t;
-		}
-		this.running = setInterval(this.refreshTimer.bind(this), 1000);
-	}
-
-	refreshTimer() {
-		document.getElementById("time").innerHTML = 'Time: ' + (new Date(Date.now() - this.startTime)).toISOString().substr(11, 8);
-	}
-
-	stopTimer() {
-		clearInterval(this.running);
-		this.pauseTime = Date.now() - new Date(this.startTime);
-		console.log(this.pauseTime);
-		document.getElementById("time").innerHTML = 'Time: ' + (new Date(this.pauseTime)).toISOString().substr(11, 8);
-	}
-
 }
